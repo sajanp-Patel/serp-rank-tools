@@ -21,19 +21,19 @@ header {
 label {
   font-weight: bold;
   display: block;
-  margin-top: 15px;
+  margin-top: 12px;
 }
 
 textarea, input, select {
   width: 100%;
   padding: 8px;
-  margin-top: 5px;
+  margin-top: 4px;
 }
 
 .row {
   display: flex;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 12px;
 }
 
 button {
@@ -49,11 +49,11 @@ button.stop {
 }
 
 .loader {
-  margin: 20px auto;
-  width: 40px;
-  height: 40px;
-  border: 5px solid #ddd;
-  border-top: 5px solid #2563eb;
+  margin: 15px auto;
+  width: 36px;
+  height: 36px;
+  border: 4px solid #ddd;
+  border-top: 4px solid #2563eb;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -64,7 +64,7 @@ button.stop {
 
 progress {
   width: 100%;
-  height: 18px;
+  height: 16px;
   margin-top: 10px;
 }
 
@@ -72,7 +72,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  margin-top: 20px;
+  margin: 20px;
 }
 
 th, td {

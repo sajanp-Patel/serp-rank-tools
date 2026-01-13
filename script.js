@@ -1,17 +1,27 @@
 let finalData = [];
 let stopFlag = false;
 
+function getKeywords() {
+  return document.getElementById("keywords").value
+    .split("\n").map(v => v.trim()).filter(Boolean);
+}
+
+function getLocations() {
+  return document.getElementById("locations").value
+    .split("\n").map(v => v.trim()).filter(Boolean);
+}
+
 async function startCheck() {
   stopFlag = false;
   finalData = [];
   document.getElementById("results").innerHTML = "";
   document.getElementById("csvBtn").classList.add("hidden");
 
-  const keywords = keywordsInput();
-  const locations = locationsInput();
+  const keywords = getKeywords();
+  const locations = getLocations();
 
-  const totalTasks = keywords.length * locations.length;
-  let completed = 0;
+  const total = keywords.length * locations.length;
+  let done = 0;
 
   document.getElementById("loader").classList.remove("hidden");
 
@@ -21,14 +31,14 @@ async function startCheck() {
       if (stopFlag) break;
 
       document.getElementById("progressText").innerText =
-        `Checking: "${keyword}" (${location})`;
+        `Checking "${keyword}" (${location})`;
 
       const res = await fetch("/api/rank", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           keyword,
-          targetUrl: targetUrl.value.trim(),
+          targetUrl: targetUrl.value,
           location,
           device: device.value,
           browser: browser.value
@@ -37,18 +47,17 @@ async function startCheck() {
 
       const data = await res.json();
 
-if (data.error) {
-  document.getElementById("progressText").innerText =
-    "Error: " + data.error;
-  break;
-}
+      if (data.error) {
+        document.getElementById("progressText").innerText = data.error;
+        break;
+      }
 
-finalData.push(data);
-renderTable(finalData);
+      finalData.push(data);
+      renderTable(finalData);
 
-      completed++;
+      done++;
       document.getElementById("progressBar").value =
-        Math.round((completed / totalTasks) * 100);
+        Math.round((done / total) * 100);
     }
   }
 
@@ -65,27 +74,17 @@ function stopCheck() {
   stopFlag = true;
 }
 
-function keywordsInput() {
-  return document.getElementById("keywords")
-    .value.split("\n").map(k => k.trim()).filter(Boolean);
-}
-
-function locationsInput() {
-  return document.getElementById("locations")
-    .value.split("\n").map(l => l.trim()).filter(Boolean);
-}
-
 function renderTable(data) {
   let html = `<table>
-  <tr>
-    <th>Date</th>
-    <th>Keyword</th>
-    <th>Location</th>
-    <th>Rank</th>
-    <th>Ranking URL</th>
-    <th>Target URL</th>
-    <th>Device</th>
-  </tr>`;
+    <tr>
+      <th>Date</th>
+      <th>Keyword</th>
+      <th>Location</th>
+      <th>Rank</th>
+      <th>Ranking URL</th>
+      <th>Target URL</th>
+      <th>Device</th>
+    </tr>`;
 
   data.forEach(r => {
     html += `<tr>
