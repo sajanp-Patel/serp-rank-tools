@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SERP Rank Checker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<h2>SERP Rank Checker</h2>
+
+<label>Keyword</label><br>
+<input id="keyword" placeholder="Enter keyword"><br><br>
+
+<label>Location</label><br>
+<input id="location" value="Ahmedabad, India"><br><br>
+
+<label>Device</label><br>
+<select id="device">
+  <option value="desktop">Desktop</option>
+  <option value="mobile">Mobile</option>
+</select><br><br>
+
+<label>Browser</label><br>
+<select id="browser">
+  <option value="chrome">Windows (Chrome)</option>
+  <option value="safari">Safari</option>
+</select><br><br>
+
+<button onclick="checkRank()">Check Rank</button>
+
+<pre id="result"></pre>
+
+<script>
+async function checkRank() {
+  document.getElementById("result").innerText = "Checking...";
+
+  const res = await fetch("/api/rank", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      keyword: keyword.value,
+      location: location.value,
+      device: device.value,
+      browser: browser.value
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("result").innerText =
+    JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>
