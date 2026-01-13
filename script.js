@@ -2,40 +2,52 @@ let finalData = [];
 
 async function checkRank() {
   finalData = [];
-  document.getElementById("results").innerHTML = "Checking...";
+  document.getElementById("results").innerHTML = "";
+  document.getElementById("csvBtn").classList.add("hidden");
 
-  const keywords = document.getElementById("keywords").value
-    .split("\n").filter(k => k.trim());
+  const keywords = document.getElementById("keywords")
+    .value.split("\n").map(k => k.trim()).filter(Boolean);
 
-  const payload = {
-    keywords,
-    targetUrl: targetUrl.value,
-    location: location.value,
-    device: device.value,
-    browser: browser.value
-  };
+  document.getElementById("loader").classList.remove("hidden");
+  document.getElementById("progress").innerText = "Starting...";
 
   const res = await fetch("/api/rank", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      keywords,
+      targetUrl: targetUrl.value.trim(),
+      location: location.value,
+      device: device.value,
+      browser: browser.value
+    })
   });
 
   finalData = await res.json();
   renderTable(finalData);
+
+  document.getElementById("loader").classList.add("hidden");
+  document.getElementById("progress").innerText = "Completed";
+  document.getElementById("csvBtn").classList.remove("hidden");
 }
 
 function renderTable(data) {
   let html = `<table><tr>
-  <th>Date</th><th>Keyword</th><th>Rank</th><th>Ranking URL</th>
-  <th>Target URL</th><th>Location</th><th>Device</th></tr>`;
+    <th>Date</th>
+    <th>Keyword</th>
+    <th>Rank</th>
+    <th>Ranking URL</th>
+    <th>Target URL</th>
+    <th>Location</th>
+    <th>Device</th>
+  </tr>`;
 
   data.forEach(r => {
     html += `<tr>
       <td>${r.date}</td>
       <td>${r.keyword}</td>
       <td>${r.rank}</td>
-      <td>${r.rankingUrl}</td>
+      <td>${r.rankingUrl || "-"}</td>
       <td>${r.targetUrl}</td>
       <td>${r.location}</td>
       <td>${r.device}</td>
@@ -44,7 +56,6 @@ function renderTable(data) {
 
   html += "</table>";
   document.getElementById("results").innerHTML = html;
-  document.getElementById("csvBtn").style.display = "block";
 }
 
 function downloadCSV() {

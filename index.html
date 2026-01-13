@@ -40,11 +40,15 @@
 
   <button onclick="checkRank()">Analyze</button>
 
+  <!-- Loader -->
+  <div id="loader" class="loader hidden"></div>
+  <p id="progress"></p>
+
 </div>
 
 <div class="results" id="results"></div>
 
-<button id="csvBtn" onclick="downloadCSV()" style="display:none">
+<button id="csvBtn" onclick="downloadCSV()" class="hidden">
 ⬇ Export CSV
 </button>
 
