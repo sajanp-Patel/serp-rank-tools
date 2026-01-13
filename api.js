@@ -1,6 +1,6 @@
 import https from "https";
 
-function serper(payload) {
+function callSerper(payload) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(payload);
 
@@ -22,7 +22,7 @@ function serper(payload) {
           try {
             resolve(JSON.parse(body));
           } catch {
-            reject("Invalid JSON");
+            reject("Invalid JSON from Serper");
           }
         });
       }
@@ -35,16 +35,26 @@ function serper(payload) {
 }
 
 export default async function handler(req, res) {
-  try {
-    const { keyword, targetUrl, location, device, browser } = req.body;
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-    const domain = targetUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  try {
+    const { keyword, targetUrl, location, device } = req.body || {};
+
+    if (!keyword || !targetUrl) {
+      return res.status(400).json({ error: "Missing keyword or targetUrl" });
+    }
+
+    const domain = targetUrl
+      .replace(/^https?:\/\//, "")
+      .replace(/\/$/, "");
 
     let rank = "Not Found";
     let rankingUrl = "";
 
     for (let page = 0; page < 10; page++) {
-      const data = await serper({
+      const data = await callSerper({
         q: keyword,
         location,
         gl: "in",
@@ -64,18 +74,19 @@ export default async function handler(req, res) {
       if (rank !== "Not Found") break;
     }
 
-    res.json({
+    return res.json({
       date: new Date().toISOString().split("T")[0],
       keyword,
       location,
       rank,
       rankingUrl,
-      targetUrl,
-      device,
-      browser
+      targetUrl
     });
 
   } catch (e) {
-    res.status(500).json({ error: "SERPER API failed" });
+    return res.status(500).json({
+      error: "SERP lookup failed",
+      details: String(e)
+    });
   }
 }
