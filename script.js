@@ -1,44 +1,82 @@
 let finalData = [];
+let stopFlag = false;
 
-async function checkRank() {
+async function startCheck() {
+  stopFlag = false;
   finalData = [];
   document.getElementById("results").innerHTML = "";
   document.getElementById("csvBtn").classList.add("hidden");
 
-  const keywords = document.getElementById("keywords")
-    .value.split("\n").map(k => k.trim()).filter(Boolean);
+  const keywords = keywordsInput();
+  const locations = locationsInput();
+
+  const totalTasks = keywords.length * locations.length;
+  let completed = 0;
 
   document.getElementById("loader").classList.remove("hidden");
-  document.getElementById("progress").innerText = "Starting...";
 
-  const res = await fetch("/api/rank", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      keywords,
-      targetUrl: targetUrl.value.trim(),
-      location: location.value,
-      device: device.value,
-      browser: browser.value
-    })
-  });
+  for (const location of locations) {
+    for (const keyword of keywords) {
 
-  finalData = await res.json();
-  renderTable(finalData);
+      if (stopFlag) break;
+
+      document.getElementById("progressText").innerText =
+        `Checking: "${keyword}" (${location})`;
+
+      const res = await fetch("/api/rank", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          keyword,
+          targetUrl: targetUrl.value.trim(),
+          location,
+          device: device.value,
+          browser: browser.value
+        })
+      });
+
+      const data = await res.json();
+      finalData.push(data);
+      renderTable(finalData);
+
+      completed++;
+      document.getElementById("progressBar").value =
+        Math.round((completed / totalTasks) * 100);
+    }
+  }
 
   document.getElementById("loader").classList.add("hidden");
-  document.getElementById("progress").innerText = "Completed";
-  document.getElementById("csvBtn").classList.remove("hidden");
+  document.getElementById("progressText").innerText =
+    stopFlag ? "Stopped by user" : "Completed";
+
+  if (finalData.length) {
+    document.getElementById("csvBtn").classList.remove("hidden");
+  }
+}
+
+function stopCheck() {
+  stopFlag = true;
+}
+
+function keywordsInput() {
+  return document.getElementById("keywords")
+    .value.split("\n").map(k => k.trim()).filter(Boolean);
+}
+
+function locationsInput() {
+  return document.getElementById("locations")
+    .value.split("\n").map(l => l.trim()).filter(Boolean);
 }
 
 function renderTable(data) {
-  let html = `<table><tr>
+  let html = `<table>
+  <tr>
     <th>Date</th>
     <th>Keyword</th>
+    <th>Location</th>
     <th>Rank</th>
     <th>Ranking URL</th>
     <th>Target URL</th>
-    <th>Location</th>
     <th>Device</th>
   </tr>`;
 
@@ -46,10 +84,10 @@ function renderTable(data) {
     html += `<tr>
       <td>${r.date}</td>
       <td>${r.keyword}</td>
+      <td>${r.location}</td>
       <td>${r.rank}</td>
       <td>${r.rankingUrl || "-"}</td>
       <td>${r.targetUrl}</td>
-      <td>${r.location}</td>
       <td>${r.device}</td>
     </tr>`;
   });

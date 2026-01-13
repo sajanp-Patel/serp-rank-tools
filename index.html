@@ -11,14 +11,14 @@
 
 <div class="container">
 
-  <label>Enter Keywords (one per line)</label>
-  <textarea id="keywords" rows="6"></textarea>
+  <label>Keywords (one per line)</label>
+  <textarea id="keywords" rows="5"></textarea>
 
   <label>Target URL</label>
   <input id="targetUrl" placeholder="https://example.com">
 
-  <label>Location</label>
-  <input id="location" value="Ahmedabad, India">
+  <label>Locations (one per line)</label>
+  <textarea id="locations" rows="3">Ahmedabad, India</textarea>
 
   <div class="row">
     <div>
@@ -32,25 +32,26 @@
     <div>
       <label>Browser</label>
       <select id="browser">
-        <option value="chrome">Windows</option>
+        <option value="windows">Windows</option>
         <option value="safari">Safari</option>
       </select>
     </div>
   </div>
 
-  <button onclick="checkRank()">Analyze</button>
+  <div class="row">
+    <button onclick="startCheck()">Analyze</button>
+    <button class="stop" onclick="stopCheck()">Stop</button>
+  </div>
 
-  <!-- Loader -->
   <div id="loader" class="loader hidden"></div>
-  <p id="progress"></p>
+  <progress id="progressBar" value="0" max="100"></progress>
+  <p id="progressText"></p>
 
 </div>
 
 <div class="results" id="results"></div>
 
-<button id="csvBtn" onclick="downloadCSV()" class="hidden">
-⬇ Export CSV
-</button>
+<button id="csvBtn" class="hidden" onclick="downloadCSV()">⬇ Export CSV</button>
 
 <script src="script.js"></script>
 </body>
