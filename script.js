@@ -36,8 +36,15 @@ async function startCheck() {
       });
 
       const data = await res.json();
-      finalData.push(data);
-      renderTable(finalData);
+
+if (data.error) {
+  document.getElementById("progressText").innerText =
+    "Error: " + data.error;
+  break;
+}
+
+finalData.push(data);
+renderTable(finalData);
 
       completed++;
       document.getElementById("progressBar").value =
