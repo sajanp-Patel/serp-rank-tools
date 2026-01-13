@@ -3,53 +3,51 @@
 <head>
   <title>SERP Rank Checker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<h2>SERP Rank Checker</h2>
+<header>SERP Rank Checker</header>
 
-<label>Keyword</label><br>
-<input id="keyword" placeholder="Enter keyword"><br><br>
+<div class="container">
 
-<label>Location</label><br>
-<input id="location" value="Ahmedabad, India"><br><br>
+  <label>Enter Keywords (one per line)</label>
+  <textarea id="keywords" rows="6"></textarea>
 
-<label>Device</label><br>
-<select id="device">
-  <option value="desktop">Desktop</option>
-  <option value="mobile">Mobile</option>
-</select><br><br>
+  <label>Target URL</label>
+  <input id="targetUrl" placeholder="https://example.com">
 
-<label>Browser</label><br>
-<select id="browser">
-  <option value="chrome">Windows (Chrome)</option>
-  <option value="safari">Safari</option>
-</select><br><br>
+  <label>Location</label>
+  <input id="location" value="Ahmedabad, India">
 
-<button onclick="checkRank()">Check Rank</button>
+  <div class="row">
+    <div>
+      <label>Device</label>
+      <select id="device">
+        <option value="desktop">Desktop</option>
+        <option value="mobile">Mobile</option>
+      </select>
+    </div>
 
-<pre id="result"></pre>
+    <div>
+      <label>Browser</label>
+      <select id="browser">
+        <option value="chrome">Windows</option>
+        <option value="safari">Safari</option>
+      </select>
+    </div>
+  </div>
 
-<script>
-async function checkRank() {
-  document.getElementById("result").innerText = "Checking...";
+  <button onclick="checkRank()">Analyze</button>
 
-  const res = await fetch("/api/rank", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      keyword: keyword.value,
-      location: location.value,
-      device: device.value,
-      browser: browser.value
-    })
-  });
+</div>
 
-  const data = await res.json();
-  document.getElementById("result").innerText =
-    JSON.stringify(data, null, 2);
-}
-</script>
+<div class="results" id="results"></div>
 
+<button id="csvBtn" onclick="downloadCSV()" style="display:none">
+⬇ Export CSV
+</button>
+
+<script src="script.js"></script>
 </body>
 </html>
