@@ -10,9 +10,9 @@ function callSerper(payload) {
         path: "/search",
         method: "POST",
         headers: {
-          "X-API-KEY": process.env.SERPER_KEY,
+          "X-API-KEY": process.env.SERPER_KEY || "",
           "Content-Type": "application/json",
-          "Content-Length": data.length
+          "Content-Length": Buffer.byteLength(data)
         }
       },
       res => {
@@ -20,15 +20,16 @@ function callSerper(payload) {
         res.on("data", c => body += c);
         res.on("end", () => {
           try {
-            resolve(JSON.parse(body));
+            const json = JSON.parse(body);
+            resolve(json);
           } catch {
-            reject("Invalid JSON from Serper");
+            reject("SERPER RAW RESPONSE: " + body.slice(0, 200));
           }
         });
       }
     );
 
-    req.on("error", reject);
+    req.on("error", err => reject(err.toString()));
     req.write(data);
     req.end();
   });
@@ -39,16 +40,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  if (!process.env.SERPER_KEY) {
+    return res.status(500).json({
+      error: "SERPER_KEY missing in environment variables"
+    });
+  }
+
   try {
     const { keyword, targetUrl, location, device } = req.body || {};
 
-    if (!keyword || !targetUrl) {
-      return res.status(400).json({ error: "Missing keyword or targetUrl" });
-    }
-
-    const domain = targetUrl
-      .replace(/^https?:\/\//, "")
-      .replace(/\/$/, "");
+    const domain = targetUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
     let rank = "Not Found";
     let rankingUrl = "";
@@ -83,10 +84,10 @@ export default async function handler(req, res) {
       targetUrl
     });
 
-  } catch (e) {
+  } catch (err) {
     return res.status(500).json({
-      error: "SERP lookup failed",
-      details: String(e)
+      error: "SERPER ERROR",
+      details: String(err)
     });
   }
 }
